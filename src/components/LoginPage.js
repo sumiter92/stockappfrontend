@@ -22,20 +22,30 @@ constructor(props){
  }
  tokenKey = 'auth_token';
 
- getToken() {
-    return localStorage.getItem(this.tokenKey);
+getToken() {
+ 
+  var localToken =  localStorage.getItem(this.tokenKey);
+  const localtokenvalue = JSON.parse(localToken)
+  if(localtokenvalue && localtokenvalue.key !== null){
+    const now = new Date()
+  if (now.getTime() > localtokenvalue.expiry) {
+    localStorage.removeItem(this.tokenKey)
   }
+    sessionStorage.setItem(this.tokenKey, localtokenvalue.key);
+  }
+  return sessionStorage.getItem(this.tokenKey);
+}
 
   decode(token) {
     return jwt.decode(token);
   }
 
   saveToken(token) {
-    localStorage.setItem(this.tokenKey, token);
+    sessionStorage.setItem(this.tokenKey, token);
   }
 
   invalidateUser() {
-    localStorage.removeItem(this.tokenKey);
+    sessionStorage.removeItem(this.tokenKey);
   }
 
   getExpiration(token) {
@@ -54,25 +64,24 @@ constructor(props){
 
   isAuthenticated() {
     const token = this.getToken();
-
+    console.log(token);
     return (token && this.isValid(token)) ? true : false;
   }
 
 componentDidMount(){
-  var socket = require('socket.io-client')(`http://localhost:4000`);
+  var socket = require('socket.io-client')(`https://api.stockapp.cf`);
       socket.on('connection', function(clientdata){
           console.log("clientsocket", clientdata)
           
       });
       socket.on('hello',SocketId=>{
-       console.log("hello", SocketId);
        this.setState({socketId:SocketId});
       });
 }
 
 
  handleClick(event){
-    var apiBaseUrl = "http://localhost:4000/api/v1/users/auth";
+    var apiBaseUrl = "https://api.stockapp.cf/api/v1/users/auth";
     var self = this;
     
     var payload={
@@ -94,7 +103,6 @@ componentDidMount(){
     // }
     }).then(token=>{
         this.saveToken(token);
-        console.log(token);
         this.props.history.push("/PortfolioPage");       
     })
     .catch(function (error) {
@@ -107,7 +115,7 @@ componentDidMount(){
 
 render() {
     if (this.isAuthenticated()) {
-        return <Redirect to={{pathname: '/HomePage'}} />
+        return <Redirect to={{pathname: '/Portfoliopage'}} />
       }
     return (
       <div>
@@ -122,6 +130,9 @@ render() {
             <h3>To get User Specific shares portfolio with current valuation Please login below with the credentials:- </h3>
            <p>Username:- testuser@gmail.com</p>
            <p>password:- test@1234</p>
+           <h3>Or</h3>
+           <p>Username:- testuser2@gmail.com</p>
+           <p>password:- testuser2@1234</p>
            <TextField
              hintText="Enter your Username"
              floatingLabelText="Username"

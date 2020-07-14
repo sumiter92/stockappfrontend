@@ -20,13 +20,14 @@ class ShareList extends Component{
   }
 
   componentDidMount(){
-    axios.get('http://localhost:4000')
+    axios.get('https://api.stockapp.cf')
     .then((response) => {
       var stocks = response.data.Stock;
       this.setState({
         Stocks: stocks
       })
-      var socket = require('socket.io-client')(`http://localhost:4000`);
+    
+      var socket = require('socket.io-client')(`https://api.stockapp.cf`);
       socket.on('connection', function(clientdata){
           console.log("clientsocket", clientdata)
           
@@ -47,7 +48,7 @@ class ShareList extends Component{
 
   handleClick(event){
     var userId= this.state.userId;
-    var apiBaseUrl = `http://localhost:4000/api/Users/${event}`;
+    var apiBaseUrl = `https://api.stockapp.cf/api/Users/${event}`;
     var self = this;
     var payload={
     
@@ -96,7 +97,7 @@ class ShareList extends Component{
       }]
 
     const {Stocks} =this.state;
-    console.log(this.state);
+    // console.log(this.state);
     return(
       <div>
         
